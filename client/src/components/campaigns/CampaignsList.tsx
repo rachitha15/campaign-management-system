@@ -166,7 +166,7 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
                         <Eye className="h-5 w-5" />
                       </button>
                       
-                      {campaign.type === "one-time" && (
+                      {campaign.type === "one-time" && campaign.status === "Campaign Ended" && (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
