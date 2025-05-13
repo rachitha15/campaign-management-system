@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileUploader } from "@/components/ui/file-uploader";
 import { downloadSampleCsv } from "@/lib/utils";
+import { Download } from "lucide-react";
 
 interface DataSourceStepProps {
   onNext: (csvFile: File) => void;
@@ -43,15 +44,22 @@ export function DataSourceStep({ onNext }: DataSourceStepProps) {
               <p className="text-xs text-gray-500 mt-1">CSV file with customer identifiers</p>
             </div>
             <Button 
-              variant="link" 
+              variant="outline"
+              size="sm"
               onClick={downloadSampleCsv} 
-              className="text-primary text-sm font-medium hover:text-blue-600"
+              className="text-primary font-medium hover:text-blue-600 flex items-center"
             >
+              <Download className="h-4 w-4 mr-1" />
               Download sample
             </Button>
           </div>
           
           <FileUploader onFileSelect={setSelectedFile} />
+          
+          <div className="mt-3 text-xs text-gray-500">
+            <p>Upload a CSV file with either partner_user_id or contact (10 digit number) columns.</p>
+            <p className="mt-1">At least one of these fields must be provided for each customer.</p>
+          </div>
         </div>
       </div>
       

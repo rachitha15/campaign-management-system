@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { CampaignSteps } from "./CampaignSteps";
+import { CampaignSteps, Step, StepStatus } from "./CampaignSteps";
 import { DataSourceStep } from "./steps/DataSourceStep";
 import { BurnRulesStep } from "./steps/BurnRulesStep";
 import { ReviewPublishStep } from "./steps/ReviewPublishStep";
@@ -33,11 +33,23 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const steps = [
-    { id: "dataSource", label: "Data Source & Action", status: currentStep === "dataSource" ? "active" : (currentStep === "burnRules" || currentStep === "review") ? "completed" : "inactive" },
-    { id: "burnRules", label: "Burn Rules", status: currentStep === "burnRules" ? "active" : currentStep === "review" ? "completed" : "inactive" },
-    { id: "review", label: "Review & Publish", status: currentStep === "review" ? "active" : "inactive" }
-  ] as const;
+  const steps: Step[] = [
+    { 
+      id: "dataSource", 
+      label: "Data Source & Action", 
+      status: (currentStep === "dataSource" ? "active" : (currentStep === "burnRules" || currentStep === "review") ? "completed" : "inactive") as StepStatus 
+    },
+    { 
+      id: "burnRules", 
+      label: "Burn Rules", 
+      status: (currentStep === "burnRules" ? "active" : currentStep === "review" ? "completed" : "inactive") as StepStatus 
+    },
+    { 
+      id: "review", 
+      label: "Review & Publish", 
+      status: (currentStep === "review" ? "active" : "inactive") as StepStatus 
+    }
+  ];
 
   const publishCampaignMutation = useMutation({
     mutationFn: async (data: CampaignData) => {
@@ -102,7 +114,7 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
         </button>
         <h2 className="text-xl font-medium">One time campaign</h2>
         <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          Trigger Based
+          One Time
         </span>
       </div>
       

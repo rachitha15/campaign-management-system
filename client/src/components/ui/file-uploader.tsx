@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, File, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { validateCsvFile } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -75,9 +75,37 @@ export function FileUploader({ onFileSelect }: FileUploaderProps) {
     }
   };
 
-  const handleClick = () => {
+  const handleBrowseClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent propagation to parent onClick
     fileInputRef.current?.click();
   };
+
+  const handleRemoveFile = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent propagation to parent onClick
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  if (selectedFile) {
+    return (
+      <div className="border-2 rounded-md p-4 flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="bg-blue-100 p-2 rounded-md mr-3">
+            <File className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <p className="font-medium text-sm">{selectedFile.name}</p>
+            <p className="text-xs text-gray-500">{Math.round(selectedFile.size / 1024)} KB</p>
+          </div>
+        </div>
+        <Button variant="ghost" size="sm" onClick={handleRemoveFile}>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -87,13 +115,18 @@ export function FileUploader({ onFileSelect }: FileUploaderProps) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={handleClick}
     >
       <div className="space-y-3 text-center">
         <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
-        <div className="flex text-sm text-gray-600">
-          <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-blue-500 focus-within:outline-none">
-            <span>Upload a file</span>
+        <div className="flex flex-col items-center text-sm text-gray-600">
+          <p>
+            <button 
+              type="button"
+              onClick={handleBrowseClick}
+              className="font-medium text-primary hover:text-blue-500 focus:outline-none"
+            >
+              Upload a file
+            </button>
             <input
               ref={fileInputRef}
               type="file"
@@ -101,12 +134,12 @@ export function FileUploader({ onFileSelect }: FileUploaderProps) {
               accept=".csv"
               onChange={handleFileChange}
             />
-          </label>
-          <p className="pl-1">or drag and drop</p>
+            <span className="mx-1">or drag and drop</span>
+          </p>
+          <p className="mt-1 text-xs text-gray-500">
+            CSV files only. Headers should be partner_user_id OR contact
+          </p>
         </div>
-        <p className="text-xs text-gray-500">
-          {selectedFile ? selectedFile.name : "CSV files only. Headers should be partner_user_id OR contact"}
-        </p>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 
 export type StepStatus = "active" | "completed" | "inactive";
 
-interface Step {
+export interface Step {
   id: string;
   label: string;
   status: StepStatus;
