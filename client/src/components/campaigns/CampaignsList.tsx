@@ -27,7 +27,11 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
   });
 
   const createCampaignMutation = useMutation({
-    mutationFn: async (campaignData: { name: string, type: string }) => {
+    mutationFn: async (campaignData: { 
+      name: string, 
+      type: string, 
+      forceStatus?: string 
+    }) => {
       const res = await apiRequest('POST', '/api/campaigns', campaignData);
       return res.json();
     },
@@ -45,9 +49,27 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
   });
 
   const handleCreateCampaign = (name: string, type: "trigger-based" | "one-time") => {
-    createCampaignMutation.mutate({ name, type });
+    // For one-time campaigns in the prototype, create two campaigns (one active, one ended)
     if (type === "one-time") {
+      // Create an active one-time campaign
+      createCampaignMutation.mutate({ 
+        name: `${name} (Active)`, 
+        type: "one-time",
+        forceStatus: "Active"  // This is a special flag we'll handle in the server
+      });
+      
+      // Create an ended one-time campaign
+      createCampaignMutation.mutate({ 
+        name: `${name} (Ended)`, 
+        type: "one-time",
+        forceStatus: "Campaign Ended"  // This is a special flag we'll handle in the server
+      });
+      
+      // Start the campaign flow
       onStartOneTimeCampaignFlow(name);
+    } else {
+      // For trigger-based campaigns, just create one
+      createCampaignMutation.mutate({ name, type });
     }
   };
   
@@ -153,9 +175,15 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
                     {campaign.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {campaign.status}
-                    </span>
+                    {campaign.status === "Campaign Ended" ? (
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                        {campaign.status}
+                      </span>
+                    ) : (
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        {campaign.status}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div className="flex space-x-3">

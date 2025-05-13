@@ -36,4 +36,5 @@ export interface CampaignData {
 export interface CampaignRequest {
   name: string;
   type: CampaignType;
+  forceStatus?: CampaignStatus;
 }

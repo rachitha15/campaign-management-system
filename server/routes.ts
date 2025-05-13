@@ -23,10 +23,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new campaign
   app.post("/api/campaigns", async (req: Request, res: Response) => {
     try {
-      const { name, type } = req.body;
+      const { name, type, forceStatus } = req.body;
       
       if (!name || !type) {
         return res.status(400).json({ message: "Campaign name and type are required" });
+      }
+      
+      // Determine status based on type and forceStatus flag
+      let status;
+      if (forceStatus) {
+        // Use the forced status if provided
+        status = forceStatus;
+      } else {
+        // Default status based on type
+        status = type === "one-time" ? "Campaign Ended" : "Active";
       }
       
       const id = generateId();
@@ -34,7 +44,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id,
         name,
         type,
-        status: type === "one-time" ? "Campaign Ended" : "Active",
+        status,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
@@ -48,7 +58,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Publish a campaign with CSV data
   app.post("/api/campaigns/publish", upload.single('csvFile'), async (req: Request, res: Response) => {
     try {
-      const { name, type } = req.body;
+      const { name, type, forceStatus } = req.body;
       const burnRulesStr = req.body.burnRules;
       const walletActionStr = req.body.walletAction;
       const csvFile = req.file;
@@ -72,13 +82,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate campaign ID
       const campaignId = generateId();
       
+      // Determine status based on type and forceStatus flag
+      let status;
+      if (forceStatus) {
+        // Use the forced status if provided
+        status = forceStatus;
+      } else {
+        // Default status based on type
+        status = type === "one-time" ? "Campaign Ended" : "Active";
+      }
+      
       // Create the campaign
-      // For one-time campaigns, set status as "Campaign Ended" for the prototype
       const campaign = await storage.createCampaign({
         id: campaignId,
         name,
         type,
-        status: type === "one-time" ? "Campaign Ended" : "Active",
+        status,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
