@@ -153,26 +153,9 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
                     {campaign.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {campaign.status}
-                      </span>
-                      
-                      {campaign.type === "one-time" && campaign.status === "Active" && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                Processing
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="w-52 text-xs">Processing credits for uploaded customers</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
-                    </div>
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      {campaign.status}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div className="flex space-x-3">
