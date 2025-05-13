@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { XCircle, Eye, Plus } from "lucide-react";
+import { XCircle, Eye, Plus, Download, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CampaignModal } from "@/components/common/CampaignModal";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Campaign } from "@/types/campaign";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CampaignsListProps {
   onStartOneTimeCampaignFlow: (name: string) => void;
@@ -42,6 +48,57 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
     createCampaignMutation.mutate({ name, type });
     if (type === "one-time") {
       onStartOneTimeCampaignFlow(name);
+    }
+  };
+  
+  const handleDownloadResults = async (campaignId: string) => {
+    try {
+      // Get campaign results
+      const response = await apiRequest('GET', `/api/campaigns/${campaignId}/results`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch campaign results');
+      }
+      
+      const results = await response.json();
+      
+      // Convert results to CSV
+      const headers = ['partner_user_id', 'contact', 'amount', 'load_id', 'status', 'error_reason'];
+      const csvContent = [
+        headers.join(','),
+        ...results.map((result: any) => [
+          result.partner_user_id || '',
+          result.contact || '',
+          result.amount || '',
+          result.load_id || '',
+          result.status || '',
+          result.error_reason || ''
+        ].join(','))
+      ].join('\n');
+      
+      // Create a download link
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `campaign-results-${campaignId}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download started",
+        description: "Campaign results are being downloaded.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error downloading results",
+        description: (error as Error).message,
+        variant: "destructive"
+      });
     }
   };
 
@@ -96,18 +153,53 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
                     {campaign.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {campaign.status}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        {campaign.status}
+                      </span>
+                      
+                      {campaign.type === "one-time" && campaign.status === "Active" && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                Processing
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="w-52 text-xs">Processing credits for uploaded customers</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-3">
                       <button className="text-red-500 hover:text-red-700">
                         <XCircle className="h-5 w-5" />
                       </button>
                       <button className="text-gray-500 hover:text-gray-700">
                         <Eye className="h-5 w-5" />
                       </button>
+                      
+                      {campaign.type === "one-time" && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                className="text-blue-500 hover:text-blue-700"
+                                onClick={() => handleDownloadResults(campaign.id)}
+                              >
+                                <Download className="h-5 w-5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">Download results</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </div>
                   </td>
                 </tr>
