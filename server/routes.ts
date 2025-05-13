@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
 import { generateId } from "../client/src/lib/utils";
-import * as csv from "csv-parser";
+import csvParser from "csv-parser";
 import { Readable } from "stream";
 
 // Setup multer for file uploads
@@ -96,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       await new Promise<void>((resolve, reject) => {
         stream
-          .pipe(csv())
+          .pipe(csvParser())
           .on('data', (data) => results.push(data))
           .on('end', async () => {
             try {
