@@ -34,7 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id,
         name,
         type,
-        status: "Active",
+        status: type === "one-time" ? "Campaign Ended" : "Active",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
@@ -73,11 +73,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const campaignId = generateId();
       
       // Create the campaign
+      // For one-time campaigns, set status as "Campaign Ended" for the prototype
       const campaign = await storage.createCampaign({
         id: campaignId,
         name,
         type,
-        status: "Active",
+        status: type === "one-time" ? "Campaign Ended" : "Active",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
