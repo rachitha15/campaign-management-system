@@ -23,6 +23,7 @@ export interface IStorage {
   getBurnRulesByCampaign(campaignId: string): Promise<BurnRule | undefined>;
   
   createCustomer(customer: Omit<Customer, "id" | "processed">): Promise<Customer>;
+  updateCustomer(customer: Customer): Promise<Customer>;
   getCustomersByCampaign(campaignId: string): Promise<Customer[]>;
 }
 
@@ -93,6 +94,11 @@ export class MemStorage implements IStorage {
     const newCustomer: Customer = { ...customer, id, processed: false };
     this.customersMap.set(id, newCustomer);
     return newCustomer;
+  }
+  
+  async updateCustomer(customer: Customer): Promise<Customer> {
+    this.customersMap.set(customer.id, customer);
+    return customer;
   }
   
   async getCustomersByCampaign(campaignId: string): Promise<Customer[]> {

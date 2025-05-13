@@ -126,6 +126,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // End a campaign
+  app.patch("/api/campaigns/:id/end", async (req: Request, res: Response) => {
+    try {
+      const campaignId = req.params.id;
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ message: "Campaign not found" });
+      }
+      
+      // Update campaign status to "Ended"
+      campaign.status = "Ended";
+      campaign.updatedAt = new Date().toISOString();
+      
+      await storage.createCampaign(campaign);
+      
+      // Process all customers as completed
+      const customers = await storage.getCustomersByCampaign(campaignId);
+      for (const customer of customers) {
+        customer.processed = true;
+        await storage.updateCustomer(customer);
+      }
+      
+      res.json(campaign);
+    } catch (error) {
+      console.error("Error ending campaign:", error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   // Get campaign results
   app.get("/api/campaigns/:id/results", async (req: Request, res: Response) => {
     try {
