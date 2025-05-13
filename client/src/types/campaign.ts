@@ -18,10 +18,18 @@ export interface BurnRules {
   minimumOrderValue?: number;
 }
 
+export interface WalletAction {
+  creditWallet: string;
+  walletId: string;
+  creditType: 'flat';
+  creditAmount: number;
+}
+
 export interface CampaignData {
   name: string;
   type: CampaignType;
   csvFile: File | null;
+  walletAction: WalletAction;
   burnRules: BurnRules;
 }
 

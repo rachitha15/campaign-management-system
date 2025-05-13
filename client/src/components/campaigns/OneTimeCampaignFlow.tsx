@@ -7,7 +7,7 @@ import { CampaignSteps, Step, StepStatus } from "./CampaignSteps";
 import { DataSourceStep } from "./steps/DataSourceStep";
 import { BurnRulesStep } from "./steps/BurnRulesStep";
 import { ReviewPublishStep } from "./steps/ReviewPublishStep";
-import { CampaignData, StepId, BurnRules } from "@/types/campaign";
+import { CampaignData, StepId, BurnRules, WalletAction } from "@/types/campaign";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,12 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
     name: campaignName,
     type: "one-time",
     csvFile: null,
+    walletAction: {
+      creditWallet: "Credit Wallet",
+      walletId: "",
+      creditType: "flat",
+      creditAmount: 100
+    },
     burnRules: {
       expiryDays: 30,
       expiryPeriod: "Days"
@@ -87,8 +93,8 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
     }
   });
 
-  const handleDataSourceNext = (csvFile: File) => {
-    setCampaignData(prev => ({ ...prev, csvFile }));
+  const handleDataSourceNext = (csvFile: File, walletAction: WalletAction) => {
+    setCampaignData(prev => ({ ...prev, csvFile, walletAction }));
     setCurrentStep("burnRules");
   };
 
@@ -123,7 +129,10 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
         
         <div className="flex-1 p-6 bg-white">
           {currentStep === "dataSource" && (
-            <DataSourceStep onNext={handleDataSourceNext} />
+            <DataSourceStep 
+              onNext={handleDataSourceNext} 
+              initialWalletAction={campaignData.walletAction}
+            />
           )}
           
           {currentStep === "burnRules" && (
