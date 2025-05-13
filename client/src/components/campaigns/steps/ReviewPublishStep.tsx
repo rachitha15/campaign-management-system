@@ -33,15 +33,18 @@ export function ReviewPublishStep({ campaignData, onBack, onPublish }: ReviewPub
               </div>
               <div className="ml-3">
                 <h4 className="text-sm font-medium text-gray-900">Credit Wallet</h4>
+                <p className="text-sm text-gray-500 mb-1">{campaignData.walletAction.creditWallet} ({campaignData.walletAction.walletId})</p>
                 <div className="flex items-center space-x-2 mb-1">
                   <span className="text-sm text-gray-500">Credit Type:</span>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    Flat
+                    {campaignData.walletAction.creditType === 'flat' ? 'Flat' : campaignData.walletAction.creditType}
                   </span>
                 </div>
                 <div className="flex items-center">
                   <span className="text-sm text-gray-500">Credit Amount:</span>
-                  <span className="ml-2 text-sm text-gray-900">100 (₹100.00)</span>
+                  <span className="ml-2 text-sm text-gray-900">
+                    {campaignData.walletAction.creditAmount} (₹{formatIndianRupee(campaignData.walletAction.creditAmount)})
+                  </span>
                 </div>
               </div>
             </div>
