@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { XCircle, Eye, Plus, Download, HelpCircle, AlertCircle } from "lucide-react";
+import { XCircle, Eye, Plus, Download, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CampaignModal } from "@/components/common/CampaignModal";
 import { useToast } from "@/hooks/use-toast";
@@ -51,31 +51,6 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
     }
   };
   
-  const handleEndCampaign = async (campaignId: string) => {
-    try {
-      // Update campaign status to "Ended"
-      const response = await apiRequest('PATCH', `/api/campaigns/${campaignId}/end`, {});
-      
-      if (!response.ok) {
-        throw new Error('Failed to end campaign');
-      }
-      
-      // Refresh campaigns list
-      queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
-      
-      toast({
-        title: "Campaign ended",
-        description: "The campaign has been marked as ended and results are now available for download.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error ending campaign",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleDownloadResults = async (campaignId: string) => {
     try {
       // Get campaign results
@@ -191,25 +166,7 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
                         <Eye className="h-5 w-5" />
                       </button>
                       
-                      {campaign.type === "one-time" && campaign.status === "Active" && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button 
-                                className="text-orange-500 hover:text-orange-700"
-                                onClick={() => handleEndCampaign(campaign.id)}
-                              >
-                                <AlertCircle className="h-5 w-5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="text-xs">End campaign & enable download</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
-                      
-                      {campaign.type === "one-time" && campaign.status === "Ended" && (
+                      {campaign.type === "one-time" && (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>

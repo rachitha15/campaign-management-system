@@ -59,7 +59,7 @@ export function CampaignModal({ open, onClose, onCreateCampaign }: CampaignModal
                 <RadioGroupItem id="one-time" value="one-time" className="mt-1" />
                 <div>
                   <Label htmlFor="one-time" className="text-sm font-medium text-gray-700">One Time Campaign</Label>
-                  <p className="text-xs text-gray-500">Upload CSV to credit customers in bulk</p>
+                  <p className="text-xs text-gray-500">Coming soon!</p>
                 </div>
               </div>
             </RadioGroup>
