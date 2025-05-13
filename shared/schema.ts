@@ -30,6 +30,9 @@ export const customers = pgTable("customers", {
   campaignId: text("campaign_id").notNull().references(() => campaigns.id, { onDelete: "cascade" }),
   partnerUserId: text("partner_user_id"),
   contact: text("contact"),
+  amount: real("amount").default(0),
+  loadId: text("load_id"),
+  errorReason: text("error_reason"),
   processed: boolean("processed").notNull().default(false),
 });
 
@@ -55,6 +58,9 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
   campaignId: true,
   partnerUserId: true,
   contact: true,
+  amount: true,
+  loadId: true,
+  errorReason: true,
 });
 
 // Types

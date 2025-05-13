@@ -63,6 +63,7 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
       formData.append('name', data.name);
       formData.append('type', data.type);
       formData.append('burnRules', JSON.stringify(data.burnRules));
+      formData.append('walletAction', JSON.stringify(data.walletAction));
       if (data.csvFile) {
         formData.append('csvFile', data.csvFile);
       }

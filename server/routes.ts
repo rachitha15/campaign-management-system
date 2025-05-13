@@ -50,6 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { name, type } = req.body;
       const burnRulesStr = req.body.burnRules;
+      const walletActionStr = req.body.walletAction;
       const csvFile = req.file;
       
       if (!name || !type) {
@@ -64,8 +65,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "CSV file is required" });
       }
       
-      // Parse the burn rules
+      // Parse the burn rules and wallet action
       const burnRules = JSON.parse(burnRulesStr);
+      const walletAction = walletActionStr ? JSON.parse(walletActionStr) : null;
       
       // Generate campaign ID
       const campaignId = generateId();
@@ -100,10 +102,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             try {
               // For each row in the CSV, create a customer record
               for (const row of results) {
+                const loadId = generateId(8);
                 await storage.createCustomer({
                   campaignId,
                   partnerUserId: row.partner_user_id || null,
-                  contact: row.contact || null
+                  contact: row.contact || null,
+                  amount: walletAction ? walletAction.creditAmount : 0,
+                  loadId,
+                  errorReason: null
                 });
               }
               resolve();
@@ -116,6 +122,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(campaign);
     } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Get campaign results
+  app.get("/api/campaigns/:id/results", async (req: Request, res: Response) => {
+    try {
+      const campaignId = req.params.id;
+      const campaign = await storage.getCampaign(campaignId);
+      
+      if (!campaign) {
+        return res.status(404).json({ message: "Campaign not found" });
+      }
+      
+      if (campaign.type !== "one-time") {
+        return res.status(400).json({ message: "Results are only available for one-time campaigns" });
+      }
+      
+      // Get customers for this campaign
+      const customers = await storage.getCustomersByCampaign(campaignId);
+      
+      // Transform to expected result format
+      const results = customers.map(customer => ({
+        partner_user_id: customer.partnerUserId || "",
+        contact: customer.contact || "",
+        amount: customer.amount || 0,
+        load_id: customer.loadId || generateId(8), // Use existing or generate a new one
+        status: customer.processed ? "success" : "pending",
+        error_reason: customer.errorReason || ""
+      }));
+      
+      res.json(results);
+    } catch (error) {
+      console.error("Error fetching campaign results:", error);
       res.status(500).json({ message: (error as Error).message });
     }
   });
