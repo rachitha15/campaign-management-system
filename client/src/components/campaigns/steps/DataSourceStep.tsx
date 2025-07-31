@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileUploader } from "@/components/ui/file-uploader";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { downloadSampleCsv, formatIndianRupee } from "@/lib/utils";
 import { Download, AlertCircle, Upload, CheckCircle } from "lucide-react";
 import { WalletAction } from "@/types/campaign";
@@ -58,6 +59,10 @@ export function DataSourceStep({ onNext, initialWalletAction }: DataSourceStepPr
     initialWalletAction?.creditPercentage ? initialWalletAction.creditPercentage.toString() : "10"
   );
   const [percentageField, setPercentageField] = useState<string>(initialWalletAction?.percentageField || "");
+  const [hasMaxLimit, setHasMaxLimit] = useState<boolean>(initialWalletAction?.hasMaxLimit || false);
+  const [maxLimit, setMaxLimit] = useState<string>(
+    initialWalletAction?.maxLimit ? initialWalletAction.maxLimit.toString() : "100"
+  );
 
   const { data: programs = [] } = useQuery<Program[]>({
     queryKey: ['/api/programs'],
@@ -182,7 +187,9 @@ export function DataSourceStep({ onNext, initialWalletAction }: DataSourceStepPr
           ? { creditAmount: parseInt(creditAmount) || 0 }
           : { 
               creditPercentage: parseFloat(creditPercentage) || 0,
-              percentageField 
+              percentageField,
+              hasMaxLimit,
+              maxLimit: hasMaxLimit ? parseInt(maxLimit) || 0 : undefined
             }
         )
       };
@@ -191,7 +198,10 @@ export function DataSourceStep({ onNext, initialWalletAction }: DataSourceStepPr
     }
   };
 
-  const isValid = selectedFile && selectedProgram && (creditType === "flat" || (creditType === "percentage" && percentageField));
+  const isValid = selectedFile && selectedProgram && (
+    creditType === "flat" || 
+    (creditType === "percentage" && percentageField && (!hasMaxLimit || (hasMaxLimit && maxLimit && parseInt(maxLimit) > 0)))
+  );
 
   return (
     <div className="space-y-6">
@@ -280,11 +290,9 @@ export function DataSourceStep({ onNext, initialWalletAction }: DataSourceStepPr
               </div>
             )}
 
-            <FileUploader 
-              onFileSelect={handleFileSelect}
-              accept=".csv"
-              className="mb-4"
-            />
+            <div className="mb-4">
+              <FileUploader onFileSelect={handleFileSelect} />
+            </div>
 
             {csvValidationError && (
               <Alert variant="destructive" className="mt-3">
@@ -401,6 +409,39 @@ export function DataSourceStep({ onNext, initialWalletAction }: DataSourceStepPr
                     </SelectContent>
                   </Select>
                   <HelperText>Credit amount will be calculated as {creditPercentage}% of this field's value for each customer</HelperText>
+                </div>
+
+                <div className="mt-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="hasMaxLimit" 
+                      checked={hasMaxLimit}
+                      onCheckedChange={(checked) => setHasMaxLimit(!!checked)}
+                    />
+                    <Label htmlFor="hasMaxLimit" className="text-sm font-medium text-gray-700">
+                      Set maximum limit
+                    </Label>
+                  </div>
+                  
+                  {hasMaxLimit && (
+                    <div className="mt-3 ml-6">
+                      <Label className="block text-sm font-medium text-gray-700 mb-2">Maximum Credit Amount</Label>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 mr-2">₹</span>
+                        <Input
+                          type="text"
+                          value={maxLimit}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setMaxLimit(value);
+                          }}
+                          className="w-32"
+                          placeholder="100"
+                        />
+                      </div>
+                      <HelperText>Maximum amount that can be credited per customer (e.g., 10% up to ₹{maxLimit})</HelperText>
+                    </div>
+                  )}
                 </div>
               </>
             )}

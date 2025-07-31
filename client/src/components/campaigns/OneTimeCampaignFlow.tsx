@@ -6,7 +6,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { CampaignSteps, Step, StepStatus } from "./CampaignSteps";
 import { DataSourceStep } from "./steps/DataSourceStep";
 import { BurnRulesStep } from "./steps/BurnRulesStep";
-import ReviewPublishStep from "./steps/ReviewPublishStep";
+import { OneTimeReviewPublishStep } from "./steps/OneTimeReviewPublishStep";
 import { CampaignData, StepId, BurnRules, WalletAction } from "@/types/campaign";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
@@ -145,7 +145,7 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
           )}
           
           {currentStep === "review" && (
-            <ReviewPublishStep 
+            <OneTimeReviewPublishStep 
               campaignData={campaignData}
               onBack={() => setCurrentStep("campaignSettings")}
               onPublish={handlePublishCampaign}

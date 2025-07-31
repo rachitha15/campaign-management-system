@@ -25,6 +25,8 @@ export interface WalletAction {
   creditAmount?: number;
   creditPercentage?: number;
   percentageField?: string; // Field name from CSV for percentage calculation
+  hasMaxLimit?: boolean; // Whether maximum limit is enabled for percentage
+  maxLimit?: number; // Maximum credit amount limit
 }
 
 export interface CampaignData {
