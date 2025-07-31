@@ -47,7 +47,7 @@ export default function Login() {
               className="h-8"
             />
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">Campaign Management</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-900">Loyalty Program Sandbox</CardTitle>
           <CardDescription>Enter your credentials to access the demo</CardDescription>
         </CardHeader>
         <CardContent>
