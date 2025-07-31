@@ -407,6 +407,36 @@ user789,bob@example.com,9876543212,500,refund`;
     }
   });
 
+  // Authentication routes
+  
+  // Logout endpoint
+  app.post("/api/auth/logout", async (req: Request, res: Response) => {
+    try {
+      // Clear all session data by clearing the storage
+      storage.clearAllData();
+      
+      // Destroy session if using express-session
+      if ((req as any).session) {
+        (req as any).session.destroy((err: any) => {
+          if (err) {
+            console.error('Session destruction error:', err);
+          }
+        });
+      }
+      
+      // Clear session cookie
+      res.clearCookie('connect.sid');
+      
+      res.json({ 
+        success: true, 
+        message: "Logged out successfully. All session data cleared." 
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,7 +1,54 @@
-import { Search, Sun, Bell } from "lucide-react";
+import { Search, Sun, Bell, LogOut, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Header() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      // Clear all cached data
+      queryClient.clear();
+      
+      toast({
+        title: "Logged out successfully",
+        description: "All session data has been cleared.",
+      });
+
+      // Optionally reload the page to reset state
+      window.location.reload();
+    },
+    onError: (error) => {
+      toast({
+        title: "Logout failed",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 py-2 px-6 flex items-center justify-between">
       <div className="flex items-center">
@@ -63,9 +110,27 @@ export default function Header() {
         <button className="p-2 text-gray-600 hover:text-primary focus:outline-none">
           <Bell className="h-6 w-6" />
         </button>
-        <button className="rounded-full bg-gray-200 w-8 h-8 flex items-center justify-center text-gray-700 font-semibold">
-          GS
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="rounded-full bg-gray-200 w-8 h-8 flex items-center justify-center text-gray-700 font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+              GS
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem>
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+              className="text-red-600 focus:text-red-600"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{logoutMutation.isPending ? "Logging out..." : "Log out"}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

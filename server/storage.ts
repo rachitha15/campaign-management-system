@@ -44,6 +44,7 @@ export interface IStorage {
   getWalletByPartnerUserId(partnerUserId: string): Promise<Wallet | undefined>;
   updateWalletBalance(id: string, newBalance: number): Promise<Wallet | undefined>;
   getUserTransactions(partnerUserId: string): Promise<Customer[]>;
+  clearAllData(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -191,6 +192,23 @@ export class MemStorage implements IStorage {
     return Array.from(this.customersMap.values()).filter(
       customer => customer.partnerUserId === partnerUserId
     ).sort((a, b) => b.id - a.id); // Sort by ID descending to show latest first
+  }
+
+  async clearAllData(): Promise<void> {
+    // Clear all data maps
+    this.users.clear();
+    this.campaignsMap.clear();
+    this.burnRulesMap.clear();
+    this.customersMap.clear();
+    this.programsMap.clear();
+    this.walletsMap.clear();
+    
+    // Reset counters
+    this.currentUserId = 1;
+    this.currentBurnRuleId = 1;
+    this.currentCustomerId = 1;
+    
+    console.log('All session data cleared');
   }
 }
 
