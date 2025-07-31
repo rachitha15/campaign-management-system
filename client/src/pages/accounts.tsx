@@ -134,7 +134,7 @@ export default function Accounts() {
             />
           </div>
           <Button variant="outline" onClick={() => refetch()}>
-            Refresh
+            Search
           </Button>
         </div>
       </Card>
@@ -160,7 +160,6 @@ export default function Accounts() {
                     <TableHead>Wallet ID</TableHead>
                     <TableHead>Partner User ID</TableHead>
                     <TableHead>Balance</TableHead>
-                    <TableHead>Campaign ID</TableHead>
                     <TableHead>Created Date</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
@@ -174,7 +173,10 @@ export default function Accounts() {
                       onClick={() => handleAccountClick(wallet)}
                     >
                       <TableCell>
-                        <div className="font-mono text-sm">{wallet.id}</div>
+                        <div className="font-mono text-sm text-blue-600 hover:text-blue-800 cursor-pointer border-b border-dotted border-blue-300 hover:border-blue-500">
+                          {wallet.id}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">Click to view transactions</div>
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{wallet.partnerUserId}</div>
@@ -183,9 +185,6 @@ export default function Accounts() {
                         <div className="font-semibold text-green-600">
                           {formatCurrency(wallet.balance)}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-mono text-sm text-gray-600">{wallet.campaignId}</div>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm text-gray-600">

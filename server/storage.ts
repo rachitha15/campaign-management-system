@@ -190,7 +190,7 @@ export class MemStorage implements IStorage {
   async getUserTransactions(partnerUserId: string): Promise<Customer[]> {
     return Array.from(this.customersMap.values()).filter(
       customer => customer.partnerUserId === partnerUserId
-    );
+    ).sort((a, b) => b.id - a.id); // Sort by ID descending to show latest first
   }
 }
 
