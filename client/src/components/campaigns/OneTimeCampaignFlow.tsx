@@ -5,9 +5,9 @@ import { ChevronLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { CampaignSteps, Step, StepStatus } from "./CampaignSteps";
 import { DataSourceStep } from "./steps/DataSourceStep";
-import { BurnRulesStep } from "./steps/BurnRulesStep";
+import { CampaignSettingsStep } from "./steps/CampaignSettingsStep";
 import { OneTimeReviewPublishStep } from "./steps/OneTimeReviewPublishStep";
-import { CampaignData, StepId, BurnRules, WalletAction } from "@/types/campaign";
+import { CampaignData, StepId, BurnRules, WalletAction, CampaignSettings } from "@/types/campaign";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,20 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
     burnRules: {
       expiryDays: 30,
       expiryPeriod: "Days"
+    },
+    campaignSettings: {
+      schedule: {
+        startImmediately: true,
+        noEndDate: true
+      },
+      campaignLimits: {
+        limitTotalAmount: false,
+        limitTotalActions: false
+      },
+      userLimits: {
+        limitUserAmount: false,
+        limitUserActions: false
+      }
     }
   });
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -64,6 +78,7 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
       formData.append('type', data.type);
       formData.append('burnRules', JSON.stringify(data.burnRules));
       formData.append('walletAction', JSON.stringify(data.walletAction));
+      formData.append('campaignSettings', JSON.stringify(data.campaignSettings));
       if (data.csvFile) {
         formData.append('csvFile', data.csvFile);
       }
@@ -99,8 +114,8 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
     setCurrentStep("campaignSettings");
   };
 
-  const handleCampaignSettingsNext = (burnRules: BurnRules) => {
-    setCampaignData(prev => ({ ...prev, burnRules }));
+  const handleCampaignSettingsNext = (campaignSettings: CampaignSettings) => {
+    setCampaignData(prev => ({ ...prev, campaignSettings }));
     setCurrentStep("review");
   };
 
@@ -137,10 +152,10 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
           )}
           
           {currentStep === "campaignSettings" && (
-            <BurnRulesStep 
+            <CampaignSettingsStep 
               onNext={handleCampaignSettingsNext} 
               onBack={() => setCurrentStep("dataSource")}
-              initialData={campaignData.burnRules}
+              initialData={campaignData.campaignSettings}
             />
           )}
           

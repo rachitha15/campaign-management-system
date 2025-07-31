@@ -18,6 +18,39 @@ export interface BurnRules {
   minimumOrderValue?: number;
 }
 
+export interface CampaignSchedule {
+  startDate?: string;
+  startTime?: string;
+  startImmediately: boolean;
+  endDate?: string;
+  endTime?: string;
+  noEndDate: boolean;
+}
+
+export interface CampaignLimits {
+  limitTotalAmount: boolean;
+  maxTotalAmount?: number;
+  totalAmountDuration?: string;
+  limitTotalActions: boolean;
+  maxTotalActions?: number;
+  totalActionsDuration?: string;
+}
+
+export interface UserLimits {
+  limitUserAmount: boolean;
+  maxUserAmount?: number;
+  userAmountDuration?: string;
+  limitUserActions: boolean;
+  maxUserActions?: number;
+  userActionsDuration?: string;
+}
+
+export interface CampaignSettings {
+  schedule: CampaignSchedule;
+  campaignLimits: CampaignLimits;
+  userLimits: UserLimits;
+}
+
 export interface WalletAction {
   creditWallet: string;
   walletId: string;
@@ -37,6 +70,7 @@ export interface CampaignData {
   csvHeaders?: string[]; // Headers from uploaded CSV
   walletAction: WalletAction;
   burnRules: BurnRules;
+  campaignSettings?: CampaignSettings;
 }
 
 export interface CampaignRequest {

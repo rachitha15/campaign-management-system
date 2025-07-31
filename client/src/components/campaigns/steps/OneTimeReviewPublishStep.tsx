@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Settings, CreditCard, Calendar } from "lucide-react";
+import { FileText, Settings, CreditCard, Calendar, Clock, Shield, User } from "lucide-react";
 import { CampaignData } from "@/types/campaign";
 import { formatIndianRupee } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export function OneTimeReviewPublishStep({
   onBack, 
   onPublish 
 }: OneTimeReviewPublishStepProps) {
-  const { name, csvFile, selectedProgram, walletAction, burnRules } = campaignData;
+  const { name, csvFile, selectedProgram, walletAction, burnRules, campaignSettings } = campaignData;
 
   const formatCreditInfo = () => {
     if (walletAction.creditType === "flat") {
@@ -125,17 +125,114 @@ export function OneTimeReviewPublishStep({
           </div>
         </Card>
 
-        {/* Campaign Settings */}
+        {/* Schedule */}
+        {campaignSettings && (
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-medium">Schedule</h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Start</p>
+                  {campaignSettings.schedule.startImmediately ? (
+                    <Badge variant="secondary">Immediately</Badge>
+                  ) : (
+                    <p className="font-medium">
+                      {campaignSettings.schedule.startDate} at {campaignSettings.schedule.startTime}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">End</p>
+                  {campaignSettings.schedule.noEndDate ? (
+                    <Badge variant="secondary">No End Date</Badge>
+                  ) : (
+                    <p className="font-medium">
+                      {campaignSettings.schedule.endDate} at {campaignSettings.schedule.endTime}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Campaign Limits */}
+        {campaignSettings && (campaignSettings.campaignLimits.limitTotalAmount || campaignSettings.campaignLimits.limitTotalActions) && (
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Shield className="h-5 w-5 text-green-600" />
+                <h3 className="text-lg font-medium">Campaign Limits</h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {campaignSettings.campaignLimits.limitTotalAmount && (
+                  <div>
+                    <p className="text-sm text-gray-500">Total Amount Limit</p>
+                    <p className="font-medium">
+                      ₹{campaignSettings.campaignLimits.maxTotalAmount} {campaignSettings.campaignLimits.totalAmountDuration}
+                    </p>
+                  </div>
+                )}
+                {campaignSettings.campaignLimits.limitTotalActions && (
+                  <div>
+                    <p className="text-sm text-gray-500">Total Actions Limit</p>
+                    <p className="font-medium">
+                      {campaignSettings.campaignLimits.maxTotalActions} times {campaignSettings.campaignLimits.totalActionsDuration}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* User Limits */}
+        {campaignSettings && (campaignSettings.userLimits.limitUserAmount || campaignSettings.userLimits.limitUserActions) && (
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <User className="h-5 w-5 text-purple-600" />
+                <h3 className="text-lg font-medium">User Limits</h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {campaignSettings.userLimits.limitUserAmount && (
+                  <div>
+                    <p className="text-sm text-gray-500">Per User Amount Limit</p>
+                    <p className="font-medium">
+                      ₹{campaignSettings.userLimits.maxUserAmount} {campaignSettings.userLimits.userAmountDuration}
+                    </p>
+                  </div>
+                )}
+                {campaignSettings.userLimits.limitUserActions && (
+                  <div>
+                    <p className="text-sm text-gray-500">Per User Actions Limit</p>
+                    <p className="font-medium">
+                      {campaignSettings.userLimits.maxUserActions} times {campaignSettings.userLimits.userActionsDuration}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Legacy Burn Rules */}
         <Card className="p-6">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Calendar className="h-5 w-5 text-orange-600" />
-              <h3 className="text-lg font-medium">Campaign Settings</h3>
+              <h3 className="text-lg font-medium">Credit Expiry</h3>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">Credit Expiry</p>
+                <p className="text-sm text-gray-500">Expiry Period</p>
                 <p className="font-medium">{burnRules.expiryDays} {burnRules.expiryPeriod}</p>
               </div>
               {burnRules.minimumOrderValue && (
