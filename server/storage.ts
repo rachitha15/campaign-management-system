@@ -3,11 +3,14 @@ import {
   campaigns, 
   burnRules, 
   customers, 
+  programs,
   type User, 
   type InsertUser, 
   type Campaign, 
   type BurnRule, 
-  type Customer 
+  type Customer,
+  type Program,
+  type InsertProgram 
 } from "@shared/schema";
 
 export interface IStorage {
@@ -24,6 +27,12 @@ export interface IStorage {
   
   createCustomer(customer: Omit<Customer, "id" | "processed">): Promise<Customer>;
   getCustomersByCampaign(campaignId: string): Promise<Customer[]>;
+  
+  createProgram(program: Program): Promise<Program>;
+  getProgram(id: string): Promise<Program | undefined>;
+  getAllPrograms(): Promise<Program[]>;
+  updateProgram(id: string, updates: Partial<Program>): Promise<Program | undefined>;
+  deleteProgram(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -31,6 +40,7 @@ export class MemStorage implements IStorage {
   private campaignsMap: Map<string, Campaign>;
   private burnRulesMap: Map<string, BurnRule>;
   private customersMap: Map<number, Customer>;
+  private programsMap: Map<string, Program>;
   
   private currentUserId: number;
   private currentBurnRuleId: number;
@@ -41,6 +51,7 @@ export class MemStorage implements IStorage {
     this.campaignsMap = new Map();
     this.burnRulesMap = new Map();
     this.customersMap = new Map();
+    this.programsMap = new Map();
     
     this.currentUserId = 1;
     this.currentBurnRuleId = 1;
@@ -99,6 +110,32 @@ export class MemStorage implements IStorage {
     return Array.from(this.customersMap.values()).filter(
       (customer) => customer.campaignId === campaignId
     );
+  }
+  
+  async createProgram(program: Program): Promise<Program> {
+    this.programsMap.set(program.id, program);
+    return program;
+  }
+  
+  async getProgram(id: string): Promise<Program | undefined> {
+    return this.programsMap.get(id);
+  }
+  
+  async getAllPrograms(): Promise<Program[]> {
+    return Array.from(this.programsMap.values());
+  }
+  
+  async updateProgram(id: string, updates: Partial<Program>): Promise<Program | undefined> {
+    const existing = this.programsMap.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...updates, updatedAt: new Date() };
+    this.programsMap.set(id, updated);
+    return updated;
+  }
+  
+  async deleteProgram(id: string): Promise<boolean> {
+    return this.programsMap.delete(id);
   }
 }
 

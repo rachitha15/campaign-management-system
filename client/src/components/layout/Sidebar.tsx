@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { 
   FileText, 
   Link as LinkIcon, 
@@ -9,10 +9,13 @@ import {
   Code, 
   ClipboardList, 
   Printer, 
-  Settings
+  Settings,
+  Megaphone
 } from "lucide-react";
 
 export default function Sidebar() {
+  const [location] = useLocation();
+  
   return (
     <aside className="w-64 border-r border-gray-200 bg-white">
       <div className="p-4">
@@ -57,11 +60,31 @@ export default function Sidebar() {
           </h3>
           <ul className="mt-2 space-y-2">
             <li>
-              <Link href="/campaigns" className="flex items-center px-3 py-2 rounded-md text-primary bg-blue-50">
+              <Link 
+                href="/campaigns" 
+                className={`flex items-center px-3 py-2 rounded-md ${
+                  location === '/campaigns' || location === '/' 
+                    ? 'text-primary bg-blue-50' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
-                Wallet
+                Campaigns
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/programs" 
+                className={`flex items-center px-3 py-2 rounded-md ${
+                  location === '/programs' 
+                    ? 'text-primary bg-blue-50' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Megaphone className="h-5 w-5 mr-3" />
+                Programs
               </Link>
             </li>
           </ul>

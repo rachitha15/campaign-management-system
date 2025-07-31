@@ -36,6 +36,19 @@ export const customers = pgTable("customers", {
   processed: boolean("processed").notNull().default(false),
 });
 
+export const programs = pgTable("programs", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  purpose: text("purpose").notNull(), // "promotions" | "loyalty"
+  inputType: text("input_type").notNull(), // "event" | "file"
+  expiryDays: integer("expiry_days").notNull(),
+  minimumOrderValue: real("minimum_order_value"),
+  fileFormatId: text("file_format_id"), // for file-based programs
+  status: text("status").notNull().default("active"), // "active" | "inactive"
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -63,6 +76,15 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
   errorReason: true,
 });
 
+export const insertProgramSchema = createInsertSchema(programs).pick({
+  name: true,
+  purpose: true,
+  inputType: true,
+  expiryDays: true,
+  minimumOrderValue: true,
+  fileFormatId: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -75,3 +97,6 @@ export type BurnRule = typeof burnRules.$inferSelect;
 
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type Customer = typeof customers.$inferSelect;
+
+export type InsertProgram = z.infer<typeof insertProgramSchema>;
+export type Program = typeof programs.$inferSelect;

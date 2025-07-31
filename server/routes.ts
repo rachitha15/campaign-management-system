@@ -180,6 +180,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Program API routes
+  
+  // Get all programs
+  app.get("/api/programs", async (req: Request, res: Response) => {
+    try {
+      const programs = await storage.getAllPrograms();
+      res.json(programs);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Create a new program
+  app.post("/api/programs", async (req: Request, res: Response) => {
+    try {
+      const { name, purpose, inputType, expiryDays, minimumOrderValue, fileFormatId } = req.body;
+      
+      if (!name || !purpose || !inputType || !expiryDays) {
+        return res.status(400).json({ 
+          message: "Program name, purpose, input type, and expiry days are required" 
+        });
+      }
+      
+      // Generate program ID with iprog_ prefix
+      const id = `iprog_${generateId()}`;
+      
+      const program = await storage.createProgram({
+        id,
+        name,
+        purpose,
+        inputType,
+        expiryDays,
+        minimumOrderValue: minimumOrderValue || null,
+        fileFormatId: fileFormatId || null,
+        status: "active",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      res.status(201).json(program);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Get a specific program
+  app.get("/api/programs/:id", async (req: Request, res: Response) => {
+    try {
+      const program = await storage.getProgram(req.params.id);
+      if (!program) {
+        return res.status(404).json({ message: "Program not found" });
+      }
+      res.json(program);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Update a program
+  app.put("/api/programs/:id", async (req: Request, res: Response) => {
+    try {
+      const updates = req.body;
+      const program = await storage.updateProgram(req.params.id, updates);
+      if (!program) {
+        return res.status(404).json({ message: "Program not found" });
+      }
+      res.json(program);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Delete a program
+  app.delete("/api/programs/:id", async (req: Request, res: Response) => {
+    try {
+      const deleted = await storage.deleteProgram(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Program not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Get available file formats
+  app.get("/api/programs/file-formats", async (req: Request, res: Response) => {
+    try {
+      // Sample file formats that merchants can use
+      const formats = [
+        {
+          id: "format_1",
+          name: "Transaction Based Format",
+          description: "For transaction-based promotions",
+          fields: [
+            { name: "partner_user_id", type: "string", required: true, description: "Unique identifier for the user" },
+            { name: "email", type: "string", required: false, description: "User email address" },
+            { name: "phone", type: "string", required: false, description: "User phone number (10 digits)" },
+            { name: "transaction_amount", type: "number", required: true, description: "Transaction amount in rupees" },
+            { name: "transaction_type", type: "string", required: true, description: "Type of transaction (purchase, refund, etc.)" }
+          ]
+        }
+      ];
+      res.json(formats);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Download sample file for a format
+  app.get("/api/programs/sample-file/:formatId", async (req: Request, res: Response) => {
+    try {
+      const formatId = req.params.formatId;
+      
+      if (formatId === "format_1") {
+        // Generate sample CSV content
+        const csvContent = `partner_user_id,email,phone,transaction_amount,transaction_type
+user123,john@example.com,9876543210,1500,purchase
+user456,jane@example.com,9876543211,2000,purchase
+user789,bob@example.com,9876543212,500,refund`;
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="sample_transaction_format.csv"');
+        res.send(csvContent);
+      } else {
+        res.status(404).json({ message: "File format not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
