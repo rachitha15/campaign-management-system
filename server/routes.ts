@@ -46,6 +46,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name,
         type,
         status,
+        programId: null,
+        triggerEvent: null,
         createdAt: new Date(),
         updatedAt: new Date()
       });
@@ -99,6 +101,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name,
         type,
         status,
+        programId: null,
+        triggerEvent: null,
         createdAt: new Date(),
         updatedAt: new Date()
       });
