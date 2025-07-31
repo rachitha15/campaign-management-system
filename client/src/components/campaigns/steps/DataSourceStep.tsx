@@ -461,7 +461,7 @@ export function DataSourceStep({ onNext, initialWalletAction }: DataSourceStepPr
           disabled={!isValid}
           className="px-6 py-2"
         >
-          Next: Program Creation
+          Next: Review & Publish
         </Button>
       </div>
     </div>

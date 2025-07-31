@@ -7,14 +7,12 @@ import { formatIndianRupee } from "@/lib/utils";
 
 interface OneTimeReviewPublishStepProps {
   campaignData: CampaignData;
-  programData?: any;
   onBack: () => void;
   onPublish: () => void;
 }
 
 export function OneTimeReviewPublishStep({ 
   campaignData, 
-  programData,
   onBack, 
   onPublish 
 }: OneTimeReviewPublishStepProps) {

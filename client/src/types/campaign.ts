@@ -1,6 +1,6 @@
 export type CampaignType = "trigger-based" | "one-time";
 export type CampaignStatus = "Active" | "Paused" | "Ended" | "Campaign Ended";
-export type StepId = "dataSource" | "programCreation" | "review";
+export type StepId = "dataSource" | "review";
 export type StepStatus = "active" | "completed" | "inactive";
 
 export interface Campaign {
