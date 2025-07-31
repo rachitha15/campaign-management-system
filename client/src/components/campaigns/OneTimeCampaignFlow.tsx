@@ -43,12 +43,12 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
     { 
       id: "dataSource", 
       label: "Data Source & Action", 
-      status: (currentStep === "dataSource" ? "active" : (currentStep === "burnRules" || currentStep === "review") ? "completed" : "inactive") as StepStatus 
+      status: (currentStep === "dataSource" ? "active" : (currentStep === "campaignSettings" || currentStep === "review") ? "completed" : "inactive") as StepStatus 
     },
     { 
-      id: "burnRules", 
-      label: "Burn Rules", 
-      status: (currentStep === "burnRules" ? "active" : currentStep === "review" ? "completed" : "inactive") as StepStatus 
+      id: "campaignSettings", 
+      label: "Campaign Settings", 
+      status: (currentStep === "campaignSettings" ? "active" : currentStep === "review" ? "completed" : "inactive") as StepStatus 
     },
     { 
       id: "review", 
@@ -94,12 +94,12 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
     }
   });
 
-  const handleDataSourceNext = (csvFile: File, walletAction: WalletAction) => {
-    setCampaignData(prev => ({ ...prev, csvFile, walletAction }));
-    setCurrentStep("burnRules");
+  const handleDataSourceNext = (csvFile: File, walletAction: WalletAction, selectedProgram?: any, csvHeaders?: string[]) => {
+    setCampaignData(prev => ({ ...prev, csvFile, walletAction, selectedProgram, csvHeaders }));
+    setCurrentStep("campaignSettings");
   };
 
-  const handleBurnRulesNext = (burnRules: BurnRules) => {
+  const handleCampaignSettingsNext = (burnRules: BurnRules) => {
     setCampaignData(prev => ({ ...prev, burnRules }));
     setCurrentStep("review");
   };
@@ -136,9 +136,9 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
             />
           )}
           
-          {currentStep === "burnRules" && (
+          {currentStep === "campaignSettings" && (
             <BurnRulesStep 
-              onNext={handleBurnRulesNext} 
+              onNext={handleCampaignSettingsNext} 
               onBack={() => setCurrentStep("dataSource")}
               initialData={campaignData.burnRules}
             />
@@ -147,7 +147,7 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
           {currentStep === "review" && (
             <ReviewPublishStep 
               campaignData={campaignData}
-              onBack={() => setCurrentStep("burnRules")}
+              onBack={() => setCurrentStep("campaignSettings")}
               onPublish={handlePublishCampaign}
             />
           )}
