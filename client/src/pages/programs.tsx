@@ -23,36 +23,7 @@ export default function Programs() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   return (
-    <div className="py-6 px-8">
-      {/* Tab Navigation */}
-      <div className="mb-8 border-b border-gray-200">
-        <nav className="flex space-x-8">
-          {TABS.map((tab) => (
-            tab.href === "#" ? (
-              <button
-                key={tab.id}
-                className="inactive-campaign-tab"
-                disabled
-              >
-                {tab.label}
-              </button>
-            ) : (
-              <Link
-                key={tab.id}
-                href={tab.href}
-                className={
-                  location === tab.href || (tab.href === "/campaigns" && location === "/")
-                    ? "active-campaign-tab" 
-                    : "inactive-campaign-tab"
-                }
-              >
-                {tab.label}
-              </Link>
-            )
-          ))}
-        </nav>
-      </div>
-
+    <div className="space-y-6">
       {/* Main Content */}
       <div className="flex justify-between items-center mb-6">
         <div>

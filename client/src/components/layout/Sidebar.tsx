@@ -1,43 +1,128 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Settings, Wallet } from "lucide-react";
-
-const navItems = [
-  { path: "/campaigns", label: "Campaigns", icon: Zap },
-  { path: "/programs", label: "Programs", icon: Settings },
-  { path: "/accounts", label: "Accounts", icon: Wallet },
-];
+import { 
+  FileText, 
+  Link as LinkIcon, 
+  MoreHorizontal, 
+  X, 
+  Users, 
+  Tag, 
+  Code, 
+  ClipboardList, 
+  Printer, 
+  Settings,
+  Wallet
+} from "lucide-react";
 
 export default function Sidebar() {
   const [location] = useLocation();
   
+  const isWalletActive = location === '/campaigns' || location === '/' || location === '/programs' || location === '/accounts';
+  
   return (
     <aside className="w-64 border-r border-gray-200 bg-white">
       <div className="p-4">
-        <div className="mt-4">
-          <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-            WALLET MANAGEMENT
+        <ul className="space-y-2">
+          <li>
+            <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+              <FileText className="h-5 w-5 mr-3" />
+              Payment Pages
+            </a>
+          </li>
+          <li>
+            <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+              <LinkIcon className="h-5 w-5 mr-3" />
+              Razorpay.me Link
+            </a>
+          </li>
+          <li>
+            <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+              <MoreHorizontal className="h-5 w-5 mr-3" />
+              +12 More
+            </a>
+          </li>
+        </ul>
+        
+        <div className="mt-8">
+          <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            BANKING PRODUCTS
           </h3>
-          <ul className="space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location === item.path || (item.path === "/campaigns" && location === "/");
-              
-              return (
-                <li key={item.path}>
-                  <Link 
-                    href={item.path}
-                    className={`flex items-center px-3 py-2 rounded-md transition-colors ${
-                      isActive
-                        ? 'text-primary bg-blue-50 border-r-2 border-primary' 
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                    }`}
-                  >
-                    <Icon className="h-5 w-5 mr-3" />
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
+          <ul className="mt-2 space-y-2">
+            <li>
+              <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <X className="h-5 w-5 mr-3" />
+                X Payroll
+              </a>
+            </li>
+          </ul>
+        </div>
+        
+        <div className="mt-8">
+          <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            LOYALTY PRODUCTS
+          </h3>
+          <ul className="mt-2 space-y-2">
+            <li>
+              <Link 
+                href="/campaigns" 
+                className={`flex items-center px-3 py-2 rounded-md ${
+                  isWalletActive
+                    ? 'text-primary bg-blue-50' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Wallet className="h-5 w-5 mr-3" />
+                Wallet
+              </Link>
+            </li>
+          </ul>
+        </div>
+        
+        <div className="mt-8">
+          <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            CUSTOMER PRODUCTS
+          </h3>
+          <ul className="mt-2 space-y-2">
+            <li>
+              <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <Users className="h-5 w-5 mr-3" />
+                Customers
+              </a>
+            </li>
+            <li>
+              <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <Tag className="h-5 w-5 mr-3" />
+                Offers
+              </a>
+            </li>
+            <li>
+              <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <Code className="h-5 w-5 mr-3" />
+                Developers
+              </a>
+            </li>
+            <li>
+              <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <ClipboardList className="h-5 w-5 mr-3" />
+                Apps & Deals
+              </a>
+            </li>
+          </ul>
+        </div>
+        
+        <div className="mt-8">
+          <ul className="space-y-2">
+            <li>
+              <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <Printer className="h-5 w-5 mr-3" />
+                Test Mode
+              </a>
+            </li>
+            <li>
+              <a href="#" className="flex items-center px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+                <Settings className="h-5 w-5 mr-3" />
+                Account & Settings
+              </a>
+            </li>
           </ul>
         </div>
       </div>
