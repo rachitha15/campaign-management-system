@@ -2,6 +2,7 @@ import { useState } from "react";
 import { XCircle, Eye, Plus, Download, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CampaignModal } from "@/components/common/CampaignModal";
+import TriggerBasedCampaignModal from "@/components/campaigns/TriggerBasedCampaignModal";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -19,6 +20,8 @@ interface CampaignsListProps {
 
 export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
+  const [triggerCampaignName, setTriggerCampaignName] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -71,6 +74,12 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
       // For trigger-based campaigns, just create one
       createCampaignMutation.mutate({ name, type });
     }
+  };
+
+  const handleTriggerBasedCreate = (name: string) => {
+    setTriggerCampaignName(name);
+    setIsModalOpen(false);
+    setIsTriggerModalOpen(true);
   };
   
   const handleDownloadResults = async (campaignId: string) => {
@@ -224,6 +233,13 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onCreateCampaign={handleCreateCampaign}
+        onTriggerBasedCreate={handleTriggerBasedCreate}
+      />
+
+      <TriggerBasedCampaignModal 
+        open={isTriggerModalOpen}
+        onClose={() => setIsTriggerModalOpen(false)}
+        campaignName={triggerCampaignName}
       />
     </div>
   );

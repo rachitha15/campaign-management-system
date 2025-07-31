@@ -6,7 +6,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { CampaignSteps, Step, StepStatus } from "./CampaignSteps";
 import { DataSourceStep } from "./steps/DataSourceStep";
 import { BurnRulesStep } from "./steps/BurnRulesStep";
-import { ReviewPublishStep } from "./steps/ReviewPublishStep";
+import ReviewPublishStep from "./steps/ReviewPublishStep";
 import { CampaignData, StepId, BurnRules, WalletAction } from "@/types/campaign";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2 } from "lucide-react";

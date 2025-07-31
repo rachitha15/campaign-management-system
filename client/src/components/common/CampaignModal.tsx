@@ -10,15 +10,22 @@ interface CampaignModalProps {
   open: boolean;
   onClose: () => void;
   onCreateCampaign: (name: string, type: "trigger-based" | "one-time") => void;
+  onTriggerBasedCreate: (name: string) => void;
 }
 
-export function CampaignModal({ open, onClose, onCreateCampaign }: CampaignModalProps) {
+export function CampaignModal({ open, onClose, onCreateCampaign, onTriggerBasedCreate }: CampaignModalProps) {
   const [campaignName, setCampaignName] = useState("");
   const [campaignType, setCampaignType] = useState<"trigger-based" | "one-time">("one-time");
 
   const handleSubmit = () => {
     if (!campaignName.trim()) return;
-    onCreateCampaign(campaignName, campaignType);
+    
+    if (campaignType === "trigger-based") {
+      onTriggerBasedCreate(campaignName);
+    } else {
+      onCreateCampaign(campaignName, campaignType);
+    }
+    
     setCampaignName("");
   };
 
@@ -59,7 +66,7 @@ export function CampaignModal({ open, onClose, onCreateCampaign }: CampaignModal
                 <RadioGroupItem id="one-time" value="one-time" className="mt-1" />
                 <div>
                   <Label htmlFor="one-time" className="text-sm font-medium text-gray-700">One Time Campaign</Label>
-                  <p className="text-xs text-gray-500">Coming soon!</p>
+  <p className="text-xs text-gray-500">Upload CSV data and configure rewards</p>
                 </div>
               </div>
             </RadioGroup>

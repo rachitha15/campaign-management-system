@@ -11,8 +11,10 @@ export const users = pgTable("users", {
 export const campaigns = pgTable("campaigns", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
-  type: text("type").notNull(),
+  type: text("type").notNull(), // "trigger-based" | "one-time"
   status: text("status").notNull().default("Active"),
+  programId: text("program_id"), // reference to programs table for trigger-based campaigns
+  triggerEvent: text("trigger_event"), // event name for trigger-based campaigns
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -58,6 +60,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertCampaignSchema = createInsertSchema(campaigns).pick({
   name: true,
   type: true,
+  programId: true,
+  triggerEvent: true,
 });
 
 export const insertBurnRuleSchema = createInsertSchema(burnRules).pick({
