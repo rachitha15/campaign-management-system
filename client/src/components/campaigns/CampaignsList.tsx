@@ -52,26 +52,12 @@ export function CampaignsList({ onStartOneTimeCampaignFlow }: CampaignsListProps
   });
 
   const handleCreateCampaign = (name: string, type: "trigger-based" | "one-time") => {
-    // For one-time campaigns in the prototype, create two campaigns (one active, one ended)
     if (type === "one-time") {
-      // Create an active one-time campaign
-      createCampaignMutation.mutate({ 
-        name: `${name} (Active)`, 
-        type: "one-time",
-        forceStatus: "Active"  // This is a special flag we'll handle in the server
-      });
-      
-      // Create an ended one-time campaign
-      createCampaignMutation.mutate({ 
-        name: `${name} (Ended)`, 
-        type: "one-time",
-        forceStatus: "Campaign Ended"  // This is a special flag we'll handle in the server
-      });
-      
-      // Start the campaign flow
+      // For one-time campaigns, just start the campaign flow
+      // The actual campaign will be created when the user publishes it
       onStartOneTimeCampaignFlow(name);
     } else {
-      // For trigger-based campaigns, just create one
+      // For trigger-based campaigns, create the campaign
       createCampaignMutation.mutate({ name, type });
     }
   };
