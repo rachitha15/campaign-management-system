@@ -40,6 +40,9 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
     enabled: !!wallet?.id,
   });
 
+  // Debug logging
+  console.log('Transactions data:', transactions);
+
   const { data: campaignDetails = [] } = useQuery({
     queryKey: ['/api/campaigns'],
   });
@@ -55,11 +58,14 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
   };
 
   const formatCurrency = (amount: number) => {
+    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(numericAmount)) return '₹0.00';
+    
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 2
-    }).format(amount);
+    }).format(numericAmount);
   };
 
   if (!isVisible) return null;
@@ -137,7 +143,7 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
                       <div>
                         <h3 className="font-medium text-gray-900">Account Created</h3>
                         <p className="text-sm text-gray-600">
-                          {formatDate(wallet.createdAt)}
+                          {formatDate(wallet.createdAt.toString())}
                         </p>
                       </div>
                     </div>
@@ -179,7 +185,7 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
                             </div>
                             <div className="text-right">
                               <p className="font-semibold text-green-600">
-                                +{formatCurrency(transaction.amount)}
+                                +{formatCurrency(Number(transaction.amount) || 0)}
                               </p>
                               <p className="text-xs text-gray-500">
                                 {formatDate(transaction.createdAt)}

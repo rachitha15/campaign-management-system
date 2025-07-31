@@ -384,8 +384,8 @@ user789,bob@example.com,9876543212,500,refund`;
         id: transaction.id,
         campaignId: transaction.campaignId,
         campaignName: campaignMap.get(transaction.campaignId)?.name || 'Unknown Campaign',
-        amount: transaction.amount || 0,
-        loadId: transaction.loadId || '',
+        amount: Number(transaction.amount) || 0,
+        loadId: transaction.loadId || transaction.partnerUserId || 'N/A',
         createdAt: new Date().toISOString(), // Use current time as we don't store transaction dates
         type: 'credit' as const
       }));
