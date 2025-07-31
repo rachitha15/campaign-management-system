@@ -6,8 +6,10 @@ import { Wallet, Shield, Calendar } from "lucide-react";
 import { Wallet as WalletType } from "@shared/schema";
 
 export default function Accounts() {
-  const { data: wallets = [], isLoading } = useQuery<WalletType[]>({
+  const { data: wallets = [], isLoading, refetch } = useQuery<WalletType[]>({
     queryKey: ['/api/wallets'],
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always refetch to get latest data
   });
 
   const formatDate = (dateString: string) => {
