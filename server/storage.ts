@@ -41,6 +41,8 @@ export interface IStorage {
   getWallet(id: string): Promise<Wallet | undefined>;
   getAllWallets(): Promise<Wallet[]>;
   getWalletsByCampaign(campaignId: string): Promise<Wallet[]>;
+  getWalletByPartnerUserId(partnerUserId: string): Promise<Wallet | undefined>;
+  updateWalletBalance(id: string, newBalance: number): Promise<Wallet | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -166,6 +168,22 @@ export class MemStorage implements IStorage {
     return Array.from(this.walletsMap.values()).filter(
       (wallet) => wallet.campaignId === campaignId
     );
+  }
+  
+  async getWalletByPartnerUserId(partnerUserId: string): Promise<Wallet | undefined> {
+    return Array.from(this.walletsMap.values()).find(
+      (wallet) => wallet.partnerUserId === partnerUserId
+    );
+  }
+  
+  async updateWalletBalance(id: string, newBalance: number): Promise<Wallet | undefined> {
+    const wallet = this.walletsMap.get(id);
+    if (wallet) {
+      const updatedWallet = { ...wallet, balance: newBalance };
+      this.walletsMap.set(id, updatedWallet);
+      return updatedWallet;
+    }
+    return undefined;
   }
 }
 

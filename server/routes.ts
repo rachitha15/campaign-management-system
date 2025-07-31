@@ -138,15 +138,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   errorReason: null
                 });
                 
-                // Create wallet for one-time campaigns
+                // Create or update wallet for one-time campaigns
                 if (type === "one-time" && partnerUserId) {
-                  const walletId = generateWalletId();
-                  await storage.createWallet({
-                    id: walletId,
-                    partnerUserId,
-                    balance: creditAmount,
-                    campaignId
-                  });
+                  // Check if wallet already exists for this user
+                  const existingWallet = await storage.getWalletByPartnerUserId(partnerUserId);
+                  
+                  if (existingWallet) {
+                    // Update existing wallet balance (additive)
+                    const newBalance = existingWallet.balance + creditAmount;
+                    await storage.updateWalletBalance(existingWallet.id, newBalance);
+                  } else {
+                    // Create new wallet
+                    const walletId = generateWalletId();
+                    await storage.createWallet({
+                      id: walletId,
+                      partnerUserId,
+                      balance: creditAmount,
+                      campaignId
+                    });
+                  }
                 }
               }
               resolve();
