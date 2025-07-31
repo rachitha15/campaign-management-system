@@ -46,8 +46,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name,
         type,
         status,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
       
       res.status(201).json(campaign);
@@ -99,8 +99,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name,
         type,
         status,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
       
       // Create burn rules
@@ -129,6 +129,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Calculate credit amount based on wallet action
                 const creditAmount = walletAction ? calculateCreditAmount(walletAction, row) : 0;
                 
+                console.log(`Processing user: ${partnerUserId}, credit: ${creditAmount}, type: ${type}`);
+                
                 await storage.createCustomer({
                   campaignId,
                   partnerUserId,
@@ -140,14 +142,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 
                 // Create or update wallet for one-time campaigns
                 if (type === "one-time" && partnerUserId) {
+                  console.log(`Creating/updating wallet for user: ${partnerUserId}`);
+                  
                   // Check if wallet already exists for this user
                   const existingWallet = await storage.getWalletByPartnerUserId(partnerUserId);
                   
                   if (existingWallet) {
+                    console.log(`Existing wallet found, updating balance from ${existingWallet.balance} to ${existingWallet.balance + creditAmount}`);
                     // Update existing wallet balance (additive)
                     const newBalance = existingWallet.balance + creditAmount;
                     await storage.updateWalletBalance(existingWallet.id, newBalance);
                   } else {
+                    console.log(`Creating new wallet with balance: ${creditAmount}`);
                     // Create new wallet
                     const walletId = generateWalletId();
                     await storage.createWallet({
