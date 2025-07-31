@@ -14,10 +14,9 @@ interface ProgramData {
   fileFormatId?: string;
   // User limits
   enableUserLimits?: boolean;
-  maxUsagePerUser?: number;
+  maxCreditAmount?: number;
+  maxTimesToCredit?: number;
   limitPeriod?: "day" | "week" | "month" | "lifetime";
-  cooldownPeriod?: number;
-  cooldownUnit?: "hours" | "days";
 }
 
 interface FinalConfigStepProps {
@@ -88,68 +87,49 @@ export default function FinalConfigStep({ data, updateData }: FinalConfigStepPro
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="max-usage">Max Usage Per User</Label>
+                  <Label htmlFor="max-credit-amount">Max Credit Amount (₹)</Label>
                   <Input
-                    id="max-usage"
+                    id="max-credit-amount"
                     type="number"
-                    value={data.maxUsagePerUser || ""}
-                    onChange={(e) => updateData({ maxUsagePerUser: parseInt(e.target.value) || undefined })}
+                    value={data.maxCreditAmount || ""}
+                    onChange={(e) => updateData({ maxCreditAmount: parseInt(e.target.value) || undefined })}
+                    placeholder="1000"
+                    min="1"
+                  />
+                  <p className="text-sm text-gray-500">Maximum credit amount per user</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="max-times-credit">Max Number of Times to Credit</Label>
+                  <Input
+                    id="max-times-credit"
+                    type="number"
+                    value={data.maxTimesToCredit || ""}
+                    onChange={(e) => updateData({ maxTimesToCredit: parseInt(e.target.value) || undefined })}
                     placeholder="5"
                     min="1"
                   />
-                  <p className="text-sm text-gray-500">Maximum times a user can benefit</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="limit-period">Limit Period</Label>
-                  <Select 
-                    value={data.limitPeriod || "lifetime"} 
-                    onValueChange={(value: "day" | "week" | "month" | "lifetime") => updateData({ limitPeriod: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select period" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="day">Per Day</SelectItem>
-                      <SelectItem value="week">Per Week</SelectItem>
-                      <SelectItem value="month">Per Month</SelectItem>
-                      <SelectItem value="lifetime">Lifetime</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <p className="text-sm text-gray-500">Maximum times a user can receive credits</p>
                 </div>
               </div>
 
-              <Separator />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cooldown-period">Cooldown Period (Optional)</Label>
-                  <Input
-                    id="cooldown-period"
-                    type="number"
-                    value={data.cooldownPeriod || ""}
-                    onChange={(e) => updateData({ cooldownPeriod: parseInt(e.target.value) || undefined })}
-                    placeholder="24"
-                    min="1"
-                  />
-                  <p className="text-sm text-gray-500">Wait time between usage</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cooldown-unit">Cooldown Unit</Label>
-                  <Select 
-                    value={data.cooldownUnit || "hours"} 
-                    onValueChange={(value: "hours" | "days") => updateData({ cooldownUnit: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select unit" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hours">Hours</SelectItem>
-                      <SelectItem value="days">Days</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="limit-period">Period</Label>
+                <Select 
+                  value={data.limitPeriod || "lifetime"} 
+                  onValueChange={(value: "day" | "week" | "month" | "lifetime") => updateData({ limitPeriod: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="day">Per Day</SelectItem>
+                    <SelectItem value="week">Per Week</SelectItem>
+                    <SelectItem value="month">Per Month</SelectItem>
+                    <SelectItem value="lifetime">Lifetime</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-gray-500">Time period for the limits above</p>
               </div>
             </div>
           )}

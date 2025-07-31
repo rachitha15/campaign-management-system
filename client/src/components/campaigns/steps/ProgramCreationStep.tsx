@@ -23,10 +23,9 @@ const programSchema = z.object({
   
   // User limits (moved from campaign settings)
   enableUserLimits: z.boolean().default(false),
-  maxUsagePerUser: z.number().optional(),
-  limitPeriod: z.enum(["day", "week", "month", "lifetime"]).optional(),
-  cooldownPeriod: z.number().optional(),
-  cooldownUnit: z.enum(["hours", "days"]).optional()
+  maxCreditAmount: z.number().optional(),
+  maxTimesToCredit: z.number().optional(),
+  limitPeriod: z.enum(["day", "week", "month", "lifetime"]).optional()
 });
 
 type ProgramFormData = z.infer<typeof programSchema>;
@@ -50,10 +49,9 @@ export function ProgramCreationStep({ onNext, onBack, initialData }: ProgramCrea
       minimumOrderValue: undefined,
       fileFormatId: "format_1",
       enableUserLimits: false,
-      maxUsagePerUser: undefined,
+      maxCreditAmount: undefined,
+      maxTimesToCredit: undefined,
       limitPeriod: "lifetime",
-      cooldownPeriod: undefined,
-      cooldownUnit: "hours",
       ...initialData
     }
   });
@@ -233,10 +231,30 @@ export function ProgramCreationStep({ onNext, onBack, initialData }: ProgramCrea
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="maxUsagePerUser"
+                      name="maxCreditAmount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Max Usage Per User</FormLabel>
+                          <FormLabel>Max Credit Amount (₹)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="1000"
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                            />
+                          </FormControl>
+                          <FormDescription>Maximum credit amount per user</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="maxTimesToCredit"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max Number of Times to Credit</FormLabel>
                           <FormControl>
                             <Input 
                               type="number" 
@@ -245,82 +263,37 @@ export function ProgramCreationStep({ onNext, onBack, initialData }: ProgramCrea
                               onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
                             />
                           </FormControl>
-                          <FormDescription>Maximum times a user can benefit</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="limitPeriod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Limit Period</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select period" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="day">Per Day</SelectItem>
-                              <SelectItem value="week">Per Week</SelectItem>
-                              <SelectItem value="month">Per Month</SelectItem>
-                              <SelectItem value="lifetime">Lifetime</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormDescription>Maximum times a user can receive credits</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
 
-                  <Separator />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="cooldownPeriod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cooldown Period (Optional)</FormLabel>
+                  <FormField
+                    control={form.control}
+                    name="limitPeriod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Period</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="24"
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
-                            />
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select period" />
+                            </SelectTrigger>
                           </FormControl>
-                          <FormDescription>Wait time between usage</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="cooldownUnit"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cooldown Unit</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select unit" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="hours">Hours</SelectItem>
-                              <SelectItem value="days">Days</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                          <SelectContent>
+                            <SelectItem value="day">Per Day</SelectItem>
+                            <SelectItem value="week">Per Week</SelectItem>
+                            <SelectItem value="month">Per Month</SelectItem>
+                            <SelectItem value="lifetime">Lifetime</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Time period for the limits above</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               )}
             </div>
