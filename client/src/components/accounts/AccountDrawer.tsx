@@ -44,6 +44,8 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
       return response.json();
     },
     enabled: !!wallet?.id,
+    staleTime: 0, // Always refetch to get latest data
+    refetchOnMount: true,
   });
 
 
@@ -51,6 +53,11 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
   const { data: campaignDetails = [] } = useQuery({
     queryKey: ['/api/campaigns'],
   });
+
+  // Debug logging
+  console.log('AccountDrawer - Wallet:', wallet?.id);
+  console.log('AccountDrawer - Transactions:', transactions);
+  console.log('AccountDrawer - Transaction count:', transactions.length);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -157,7 +164,9 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
 
                 {/* Transaction History */}
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Transaction History</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    Transaction History ({transactions.length} {transactions.length === 1 ? 'transaction' : 'transactions'})
+                  </h3>
                   
                   {isLoading ? (
                     <div className="space-y-3">
@@ -169,8 +178,8 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
                     </div>
                   ) : transactions.length > 0 ? (
                     <div className="space-y-3">
-                      {transactions.map((transaction) => (
-                        <Card key={transaction.id} className="p-4">
+                      {transactions.map((transaction, index) => (
+                        <Card key={`${transaction.id}-${transaction.campaignId}-${index}`} className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <div className="p-2 bg-green-100 rounded-lg">
