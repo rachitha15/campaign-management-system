@@ -51,6 +51,14 @@ export const programs = pgTable("programs", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const wallets = pgTable("wallets", {
+  id: text("id").primaryKey(),
+  partnerUserId: text("partner_user_id").notNull(),
+  balance: real("balance").notNull().default(0),
+  campaignId: text("campaign_id").notNull().references(() => campaigns.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -89,6 +97,12 @@ export const insertProgramSchema = createInsertSchema(programs).pick({
   fileFormatId: true,
 });
 
+export const insertWalletSchema = createInsertSchema(wallets).pick({
+  partnerUserId: true,
+  balance: true,
+  campaignId: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -104,3 +118,6 @@ export type Customer = typeof customers.$inferSelect;
 
 export type InsertProgram = z.infer<typeof insertProgramSchema>;
 export type Program = typeof programs.$inferSelect;
+
+export type InsertWallet = z.infer<typeof insertWalletSchema>;
+export type Wallet = typeof wallets.$inferSelect;

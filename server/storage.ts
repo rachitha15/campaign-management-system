@@ -4,13 +4,16 @@ import {
   burnRules, 
   customers, 
   programs,
+  wallets,
   type User, 
   type InsertUser, 
   type Campaign, 
   type BurnRule, 
   type Customer,
   type Program,
-  type InsertProgram 
+  type InsertProgram,
+  type Wallet,
+  type InsertWallet
 } from "@shared/schema";
 
 export interface IStorage {
@@ -33,6 +36,11 @@ export interface IStorage {
   getAllPrograms(): Promise<Program[]>;
   updateProgram(id: string, updates: Partial<Program>): Promise<Program | undefined>;
   deleteProgram(id: string): Promise<boolean>;
+  
+  createWallet(wallet: Omit<Wallet, "createdAt">): Promise<Wallet>;
+  getWallet(id: string): Promise<Wallet | undefined>;
+  getAllWallets(): Promise<Wallet[]>;
+  getWalletsByCampaign(campaignId: string): Promise<Wallet[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -41,6 +49,7 @@ export class MemStorage implements IStorage {
   private burnRulesMap: Map<string, BurnRule>;
   private customersMap: Map<number, Customer>;
   private programsMap: Map<string, Program>;
+  private walletsMap: Map<string, Wallet>;
   
   private currentUserId: number;
   private currentBurnRuleId: number;
@@ -52,6 +61,7 @@ export class MemStorage implements IStorage {
     this.burnRulesMap = new Map();
     this.customersMap = new Map();
     this.programsMap = new Map();
+    this.walletsMap = new Map();
     
     this.currentUserId = 1;
     this.currentBurnRuleId = 1;
@@ -136,6 +146,26 @@ export class MemStorage implements IStorage {
   
   async deleteProgram(id: string): Promise<boolean> {
     return this.programsMap.delete(id);
+  }
+  
+  async createWallet(wallet: Omit<Wallet, "createdAt">): Promise<Wallet> {
+    const newWallet: Wallet = { ...wallet, createdAt: new Date() };
+    this.walletsMap.set(wallet.id, newWallet);
+    return newWallet;
+  }
+  
+  async getWallet(id: string): Promise<Wallet | undefined> {
+    return this.walletsMap.get(id);
+  }
+  
+  async getAllWallets(): Promise<Wallet[]> {
+    return Array.from(this.walletsMap.values());
+  }
+  
+  async getWalletsByCampaign(campaignId: string): Promise<Wallet[]> {
+    return Array.from(this.walletsMap.values()).filter(
+      (wallet) => wallet.campaignId === campaignId
+    );
   }
 }
 

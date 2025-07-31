@@ -5,6 +5,7 @@ import multer from "multer";
 import { generateId } from "../client/src/lib/utils";
 import csvParser from "csv-parser";
 import { Readable } from "stream";
+import { calculateCreditAmount, generateWalletId } from "./utils/creditCalculator";
 
 // Setup multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
@@ -120,17 +121,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .on('data', (data) => results.push(data))
           .on('end', async () => {
             try {
-              // For each row in the CSV, create a customer record
+              // For each row in the CSV, create a customer record and wallet
               for (const row of results) {
                 const loadId = generateId(8);
+                const partnerUserId = row.partner_user_id || null;
+                
+                // Calculate credit amount based on wallet action
+                const creditAmount = walletAction ? calculateCreditAmount(walletAction, row) : 0;
+                
                 await storage.createCustomer({
                   campaignId,
-                  partnerUserId: row.partner_user_id || null,
+                  partnerUserId,
                   contact: row.contact || null,
-                  amount: walletAction ? walletAction.creditAmount : 0,
+                  amount: creditAmount,
                   loadId,
                   errorReason: null
                 });
+                
+                // Create wallet for one-time campaigns
+                if (type === "one-time" && partnerUserId) {
+                  const walletId = generateWalletId();
+                  await storage.createWallet({
+                    id: walletId,
+                    partnerUserId,
+                    balance: creditAmount,
+                    campaignId
+                  });
+                }
               }
               resolve();
             } catch (error) {
@@ -307,6 +324,29 @@ user789,bob@example.com,9876543212,500,refund`;
         return res.status(404).json({ message: "Program not found" });
       }
       res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Wallet API routes
+  
+  // Get all wallets
+  app.get("/api/wallets", async (req: Request, res: Response) => {
+    try {
+      const wallets = await storage.getAllWallets();
+      res.json(wallets);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Get wallets by campaign
+  app.get("/api/campaigns/:id/wallets", async (req: Request, res: Response) => {
+    try {
+      const campaignId = req.params.id;
+      const wallets = await storage.getWalletsByCampaign(campaignId);
+      res.json(wallets);
     } catch (error) {
       res.status(500).json({ message: (error as Error).message });
     }
