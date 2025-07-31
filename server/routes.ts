@@ -192,6 +192,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get available file formats (must be before parameterized routes)
+  app.get("/api/programs/file-formats", async (req: Request, res: Response) => {
+    try {
+      // Sample file formats that merchants can use
+      const formats = [
+        {
+          id: "format_1",
+          name: "Transaction Based Format",
+          description: "For transaction-based promotions",
+          fields: [
+            { name: "partner_user_id", type: "string", required: true, description: "Unique identifier for the user" },
+            { name: "email", type: "string", required: false, description: "User email address" },
+            { name: "phone", type: "string", required: false, description: "User phone number (10 digits)" },
+            { name: "transaction_amount", type: "number", required: true, description: "Transaction amount in rupees" },
+            { name: "transaction_type", type: "string", required: true, description: "Type of transaction (purchase, refund, etc.)" }
+          ]
+        }
+      ];
+      res.json(formats);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
+  // Download sample file for a format (must be before parameterized routes)
+  app.get("/api/programs/sample-file/:formatId", async (req: Request, res: Response) => {
+    try {
+      const formatId = req.params.formatId;
+      
+      if (formatId === "format_1") {
+        // Generate sample CSV content
+        const csvContent = `partner_user_id,email,phone,transaction_amount,transaction_type
+user123,john@example.com,9876543210,1500,purchase
+user456,jane@example.com,9876543211,2000,purchase
+user789,bob@example.com,9876543212,500,refund`;
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="sample_transaction_format.csv"');
+        res.send(csvContent);
+      } else {
+        res.status(404).json({ message: "File format not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   // Create a new program
   app.post("/api/programs", async (req: Request, res: Response) => {
     try {
@@ -260,53 +307,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Program not found" });
       }
       res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
-    }
-  });
-
-  // Get available file formats
-  app.get("/api/programs/file-formats", async (req: Request, res: Response) => {
-    try {
-      // Sample file formats that merchants can use
-      const formats = [
-        {
-          id: "format_1",
-          name: "Transaction Based Format",
-          description: "For transaction-based promotions",
-          fields: [
-            { name: "partner_user_id", type: "string", required: true, description: "Unique identifier for the user" },
-            { name: "email", type: "string", required: false, description: "User email address" },
-            { name: "phone", type: "string", required: false, description: "User phone number (10 digits)" },
-            { name: "transaction_amount", type: "number", required: true, description: "Transaction amount in rupees" },
-            { name: "transaction_type", type: "string", required: true, description: "Type of transaction (purchase, refund, etc.)" }
-          ]
-        }
-      ];
-      res.json(formats);
-    } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
-    }
-  });
-
-  // Download sample file for a format
-  app.get("/api/programs/sample-file/:formatId", async (req: Request, res: Response) => {
-    try {
-      const formatId = req.params.formatId;
-      
-      if (formatId === "format_1") {
-        // Generate sample CSV content
-        const csvContent = `partner_user_id,email,phone,transaction_amount,transaction_type
-user123,john@example.com,9876543210,1500,purchase
-user456,jane@example.com,9876543211,2000,purchase
-user789,bob@example.com,9876543212,500,refund`;
-
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename="sample_transaction_format.csv"');
-        res.send(csvContent);
-      } else {
-        res.status(404).json({ message: "File format not found" });
-      }
     } catch (error) {
       res.status(500).json({ message: (error as Error).message });
     }
