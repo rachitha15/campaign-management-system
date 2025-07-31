@@ -5,7 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { CampaignSteps, Step, StepStatus } from "./CampaignSteps";
 import { DataSourceStep } from "./steps/DataSourceStep";
-import { CampaignSettingsStep } from "./steps/CampaignSettingsStep";
+import { ProgramCreationStep } from "./steps/ProgramCreationStep";
 import { OneTimeReviewPublishStep } from "./steps/OneTimeReviewPublishStep";
 import { CampaignData, StepId, BurnRules, WalletAction, CampaignSettings } from "@/types/campaign";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -20,6 +20,7 @@ interface OneTimeCampaignFlowProps {
 
 export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFlowProps) {
   const [currentStep, setCurrentStep] = useState<StepId>("dataSource");
+  const [programData, setProgramData] = useState<any>(null);
   const [campaignData, setCampaignData] = useState<CampaignData>({
     name: campaignName,
     type: "one-time",
@@ -56,13 +57,13 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
   const steps: Step[] = [
     { 
       id: "dataSource", 
-      label: "Data Source & Action", 
-      status: (currentStep === "dataSource" ? "active" : (currentStep === "campaignSettings" || currentStep === "review") ? "completed" : "inactive") as StepStatus 
+      label: "Data Source", 
+      status: (currentStep === "dataSource" ? "active" : (currentStep === "programCreation" || currentStep === "review") ? "completed" : "inactive") as StepStatus 
     },
     { 
-      id: "campaignSettings", 
-      label: "Campaign Settings", 
-      status: (currentStep === "campaignSettings" ? "active" : currentStep === "review" ? "completed" : "inactive") as StepStatus 
+      id: "programCreation", 
+      label: "Program Creation", 
+      status: (currentStep === "programCreation" ? "active" : currentStep === "review" ? "completed" : "inactive") as StepStatus 
     },
     { 
       id: "review", 
@@ -109,13 +110,18 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
     }
   });
 
-  const handleDataSourceNext = (csvFile: File, walletAction: WalletAction, selectedProgram?: any, csvHeaders?: string[]) => {
-    setCampaignData(prev => ({ ...prev, csvFile, walletAction, selectedProgram, csvHeaders }));
-    setCurrentStep("campaignSettings");
+  const handleDataSourceNext = (csvFile: File, walletAction: WalletAction, burnRules: BurnRules) => {
+    setCampaignData(prev => ({
+      ...prev,
+      csvFile,
+      walletAction,
+      burnRules
+    }));
+    setCurrentStep("programCreation");
   };
 
-  const handleCampaignSettingsNext = (campaignSettings: CampaignSettings) => {
-    setCampaignData(prev => ({ ...prev, campaignSettings }));
+  const handleProgramCreationNext = (programData: any) => {
+    setProgramData(programData);
     setCurrentStep("review");
   };
 
@@ -151,18 +157,18 @@ export function OneTimeCampaignFlow({ campaignName, onClose }: OneTimeCampaignFl
             />
           )}
           
-          {currentStep === "campaignSettings" && (
-            <CampaignSettingsStep 
-              onNext={handleCampaignSettingsNext} 
+          {currentStep === "programCreation" && (
+            <ProgramCreationStep 
+              onNext={handleProgramCreationNext} 
               onBack={() => setCurrentStep("dataSource")}
-              initialData={campaignData.campaignSettings}
             />
           )}
           
           {currentStep === "review" && (
             <OneTimeReviewPublishStep 
               campaignData={campaignData}
-              onBack={() => setCurrentStep("campaignSettings")}
+              programData={programData}
+              onBack={() => setCurrentStep("programCreation")}
               onPublish={handlePublishCampaign}
             />
           )}

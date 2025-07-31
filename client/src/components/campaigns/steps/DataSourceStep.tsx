@@ -9,13 +9,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { downloadSampleCsv, formatIndianRupee } from "@/lib/utils";
 import { Download, AlertCircle, Upload, CheckCircle } from "lucide-react";
-import { WalletAction } from "@/types/campaign";
+import { WalletAction, BurnRules } from "@/types/campaign";
 import { HelperText } from "@/components/ui/helper-text";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 
 interface DataSourceStepProps {
-  onNext: (csvFile: File, walletAction: WalletAction, selectedProgram?: any, csvHeaders?: string[]) => void;
+  onNext: (csvFile: File, walletAction: WalletAction, burnRules: BurnRules) => void;
   initialWalletAction?: WalletAction;
 }
 
@@ -194,7 +194,13 @@ export function DataSourceStep({ onNext, initialWalletAction }: DataSourceStepPr
         )
       };
       
-      onNext(selectedFile, walletAction, selectedProgram, csvHeaders);
+      const burnRules: BurnRules = {
+        expiryDays: selectedProgram.expiryDays,
+        expiryPeriod: "Days",
+        minimumOrderValue: selectedProgram.minimumOrderValue
+      };
+      
+      onNext(selectedFile, walletAction, burnRules);
     }
   };
 
@@ -455,7 +461,7 @@ export function DataSourceStep({ onNext, initialWalletAction }: DataSourceStepPr
           disabled={!isValid}
           className="px-6 py-2"
         >
-          Next: Campaign Settings
+          Next: Program Creation
         </Button>
       </div>
     </div>
