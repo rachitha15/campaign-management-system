@@ -361,6 +361,41 @@ user789,bob@example.com,9876543212,500,refund`;
     }
   });
 
+  // Get wallet transactions by wallet ID
+  app.get("/api/wallets/:walletId/transactions", async (req: Request, res: Response) => {
+    try {
+      const { walletId } = req.params;
+      
+      // Get wallet to find the partner user ID
+      const wallet = await storage.getWallet(walletId);
+      if (!wallet) {
+        return res.status(404).json({ message: "Wallet not found" });
+      }
+
+      // Get all transactions (customer records) for this user
+      const transactions = await storage.getUserTransactions(wallet.partnerUserId);
+      
+      // Get all campaigns to add campaign names
+      const campaigns = await storage.getAllCampaigns();
+      const campaignMap = new Map(campaigns.map(c => [c.id, c]));
+
+      // Transform to include campaign names and format for frontend
+      const formattedTransactions = transactions.map(transaction => ({
+        id: transaction.id,
+        campaignId: transaction.campaignId,
+        campaignName: campaignMap.get(transaction.campaignId)?.name || 'Unknown Campaign',
+        amount: transaction.amount || 0,
+        loadId: transaction.loadId || '',
+        createdAt: new Date().toISOString(), // Use current time as we don't store transaction dates
+        type: 'credit' as const
+      }));
+
+      res.json(formattedTransactions);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  });
+
   // Get wallets by campaign
   app.get("/api/campaigns/:id/wallets", async (req: Request, res: Response) => {
     try {

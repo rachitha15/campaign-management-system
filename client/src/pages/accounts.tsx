@@ -1,16 +1,43 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Wallet, Shield, Calendar } from "lucide-react";
+import { Wallet, Shield, Calendar, Search, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Wallet as WalletType } from "@shared/schema";
+import { AccountDrawer } from "@/components/accounts/AccountDrawer";
 
 export default function Accounts() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedWallet, setSelectedWallet] = useState<WalletType | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const { data: wallets = [], isLoading, refetch } = useQuery<WalletType[]>({
     queryKey: ['/api/wallets'],
     refetchOnWindowFocus: true,
     staleTime: 0, // Always refetch to get latest data
   });
+
+  // Filter wallets based on search term
+  const filteredWallets = wallets.filter(wallet => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      wallet.partnerUserId.toLowerCase().includes(searchLower) ||
+      wallet.id.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const handleAccountClick = (wallet: WalletType) => {
+    setSelectedWallet(wallet);
+    setIsDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setIsDrawerOpen(false);
+    setSelectedWallet(null);
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -44,9 +71,9 @@ export default function Accounts() {
     );
   }
 
-  const totalWallets = wallets.length;
-  const totalBalance = wallets.reduce((sum, wallet) => sum + wallet.balance, 0);
-  const activeWallets = wallets.filter(wallet => wallet.balance > 0).length;
+  const totalWallets = filteredWallets.length;
+  const totalBalance = filteredWallets.reduce((sum, wallet) => sum + wallet.balance, 0);
+  const activeWallets = filteredWallets.filter(wallet => wallet.balance > 0).length;
 
   return (
     <div className="space-y-6">
@@ -94,12 +121,30 @@ export default function Accounts() {
         </Card>
       </div>
 
+      {/* Search Bar */}
+      <Card className="p-6">
+        <div className="flex items-center space-x-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search by Partner User ID or Wallet ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button variant="outline" onClick={() => refetch()}>
+            Refresh
+          </Button>
+        </div>
+      </Card>
+
       {/* Wallets Table */}
       <Card>
         <div className="p-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Wallet Details</h2>
           
-          {wallets.length === 0 ? (
+          {filteredWallets.length === 0 ? (
             <div className="text-center py-12">
               <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No wallets found</h3>
@@ -118,11 +163,16 @@ export default function Accounts() {
                     <TableHead>Campaign ID</TableHead>
                     <TableHead>Created Date</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {wallets.map((wallet) => (
-                    <TableRow key={wallet.id}>
+                  {filteredWallets.map((wallet) => (
+                    <TableRow 
+                      key={wallet.id} 
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => handleAccountClick(wallet)}
+                    >
                       <TableCell>
                         <div className="font-mono text-sm">{wallet.id}</div>
                       </TableCell>
@@ -150,6 +200,19 @@ export default function Accounts() {
                           {wallet.balance > 0 ? "Active" : "Empty"}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAccountClick(wallet);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -158,6 +221,13 @@ export default function Accounts() {
           )}
         </div>
       </Card>
+
+      {/* Account Drawer */}
+      <AccountDrawer 
+        wallet={selectedWallet}
+        isOpen={isDrawerOpen}
+        onClose={handleDrawerClose}
+      />
     </div>
   );
 }

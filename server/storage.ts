@@ -43,6 +43,7 @@ export interface IStorage {
   getWalletsByCampaign(campaignId: string): Promise<Wallet[]>;
   getWalletByPartnerUserId(partnerUserId: string): Promise<Wallet | undefined>;
   updateWalletBalance(id: string, newBalance: number): Promise<Wallet | undefined>;
+  getUserTransactions(partnerUserId: string): Promise<Customer[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -184,6 +185,12 @@ export class MemStorage implements IStorage {
       return updatedWallet;
     }
     return undefined;
+  }
+
+  async getUserTransactions(partnerUserId: string): Promise<Customer[]> {
+    return Array.from(this.customersMap.values()).filter(
+      customer => customer.partnerUserId === partnerUserId
+    );
   }
 }
 
