@@ -46,6 +46,11 @@ export default function Header() {
   });
 
   const handleLogout = () => {
+    // Clear authentication
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("projectName");
+    
+    // Clear server data
     logoutMutation.mutate();
   };
 
