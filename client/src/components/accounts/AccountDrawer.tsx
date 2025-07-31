@@ -36,12 +36,17 @@ export function AccountDrawer({ wallet, isOpen, onClose }: AccountDrawerProps) {
   }, [isOpen]);
 
   const { data: transactions = [], isLoading } = useQuery<UserTransaction[]>({
-    queryKey: ['/api/wallets', wallet?.id, 'transactions'],
+    queryKey: ['wallet-transactions', wallet?.id],
+    queryFn: async () => {
+      if (!wallet?.id) return [];
+      const response = await fetch(`/api/wallets/${wallet.id}/transactions`);
+      if (!response.ok) throw new Error('Failed to fetch transactions');
+      return response.json();
+    },
     enabled: !!wallet?.id,
   });
 
-  // Debug logging
-  console.log('Transactions data:', transactions);
+
 
   const { data: campaignDetails = [] } = useQuery({
     queryKey: ['/api/campaigns'],
